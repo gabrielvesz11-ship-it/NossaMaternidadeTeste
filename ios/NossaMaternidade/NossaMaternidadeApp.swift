@@ -1,10 +1,3 @@
-//
-//  NossaMaternidadeApp.swift
-//  NossaMaternidade
-//
-//  Created by Rork on May 18, 2026.
-//
-
 import SwiftUI
 import SwiftData
 
@@ -12,17 +5,19 @@ import SwiftData
 struct NossaMaternidadeApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            UserProfile.self,
+            JournalEntry.self,
+            TrackerLog.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
+        
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
-
+    
     var body: some Scene {
         WindowGroup {
             ContentView()

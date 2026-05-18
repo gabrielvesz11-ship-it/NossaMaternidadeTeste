@@ -1,61 +1,69 @@
-//
-//  ContentView.swift
-//  NossaMaternidade
-//
-//  Created by Rork on May 18, 2026.
-//
-
 import SwiftUI
 import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
+    @Query private var profiles: [UserProfile]
+    @State private var isReady = false
+    
+    var hasCompletedOnboarding: Bool {
+        profiles.first?.hasCompletedOnboarding ?? false
+    }
+    
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
+        ZStack {
+            if !isReady {
+                SplashView()
+            } else if hasCompletedOnboarding {
+                MainTabView()
+            } else {
+                OnboardingView()
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
         }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+        .task {
+            try? await Task.sleep(for: .seconds(1.2))
+            withAnimation(.easeInOut(duration: 0.4)) {
+                isReady = true
             }
         }
     }
 }
 
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+struct SplashView: View {
+    @State private var scale = 0.8
+    @State private var opacity = 0.0
+    
+    var body: some View {
+        ZStack {
+            AppColors.background.ignoresSafeArea()
+            
+            VStack(spacing: 24) {
+                ZStack {
+                    Circle()
+                        .fill(AppColors.primaryLight.opacity(0.3))
+                        .frame(width: 120, height: 120)
+                    
+                    Image(systemName: "heart.fill")
+                        .font(.system(size: 52))
+                        .foregroundStyle(AppColors.primary)
+                }
+                
+                Text("Nossa Maternidade")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundStyle(AppColors.textPrimary)
+                
+                Text("Estamos juntas")
+                    .font(.system(size: 17, weight: .medium))
+                    .foregroundStyle(AppColors.textSecondary)
+            }
+            .scaleEffect(scale)
+            .opacity(opacity)
+        }
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.6)) {
+                scale = 1.0
+                opacity = 1.0
+            }
+        }
+    }
 }
