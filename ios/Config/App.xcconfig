@@ -1,0 +1,14 @@
+SUPABASE_URL =
+SUPABASE_ANON_KEY =
+NATHIA_PROXY_URL =
+
+REVENUECAT_API_KEY =
+REVENUECAT_OFFERING_ID = default
+REVENUECAT_ENTITLEMENT_ID = premium
+REVENUECAT_YEARLY_PRODUCT_ID =
+
+SUPABASE_PHOTO_BUCKET = journal-photos
+TERMS_URL = https:/$()/nossamaternidade.com.br/termos
+PRIVACY_URL = https:/$()/nossamaternidade.com.br/privacidade
+
+#include? "Secrets.local.xcconfig"

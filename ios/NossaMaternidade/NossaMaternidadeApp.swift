@@ -1,27 +1,61 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 @main
 struct NossaMaternidadeApp: App {
-    var sharedModelContainer: ModelContainer = {
+    private let modelContainerResult: Result<ModelContainer, Error> = {
         let schema = Schema([
             UserProfile.self,
-            JournalEntry.self,
-            TrackerLog.self,
+            ChatMessage.self,
+            DailyUsage.self,
+            WeeklyJournalEntry.self,
+            SubscriptionRecord.self,
         ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        
+        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            return .success(try ModelContainer(for: schema, configurations: [configuration]))
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            return .failure(error)
         }
     }()
-    
+
+    @State private var appServices = AppServices()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            switch modelContainerResult {
+            case .success(let modelContainer):
+                ContentView()
+                    .environment(appServices)
+                    .environment(\.locale, Locale(identifier: "pt_BR"))
+                    .modelContainer(modelContainer)
+            case .failure(let error):
+                StartupErrorView(message: error.localizedDescription)
+                    .environment(\.locale, Locale(identifier: "pt_BR"))
+            }
         }
-        .modelContainer(sharedModelContainer)
+    }
+}
+
+private struct StartupErrorView: View {
+    let message: String
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 32, weight: .semibold))
+                .foregroundStyle(.orange)
+
+            Text("Não foi possível iniciar o app.")
+                .font(.headline)
+                .multilineTextAlignment(.center)
+
+            Text(message)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(24)
     }
 }

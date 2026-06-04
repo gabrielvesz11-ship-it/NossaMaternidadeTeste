@@ -1,0 +1,39 @@
+name: Repository Hygiene
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  hygiene:
+    name: hygiene
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Required docs
+        run: |
+          test -f README.md
+          test -f CONTRIBUTING.md
+          test -f LICENSE.md
+          test -f SECURITY.md
+
+      - name: Block committed secret config files
+        run: |
+          if git ls-files | grep -E '(^|/)\.env($|\.)|Secrets\.local\.xcconfig$'; then
+            echo "Secret/config file appears to be tracked."
+            exit 1
+          fi
+
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Shell syntax
+        run: bash -n scripts/*.sh

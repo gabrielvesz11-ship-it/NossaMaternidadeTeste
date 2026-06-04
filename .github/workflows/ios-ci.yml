@@ -1,0 +1,64 @@
+name: iOS CI
+
+on:
+  pull_request:
+    paths:
+      - "ios/**"
+      - "scripts/**"
+      - ".github/workflows/ios-ci.yml"
+      - ".swiftlint.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "ios/**"
+      - "scripts/**"
+      - ".github/workflows/ios-ci.yml"
+      - ".swiftlint.yml"
+
+concurrency:
+  group: ios-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: build-test
+    runs-on: macos-15
+    timeout-minutes: 35
+
+    env:
+      PROJECT_PATH: ios/NossaMaternidade.xcodeproj
+      SCHEME: NossaMaternidade
+      DESTINATION: platform=iOS Simulator,name=iPhone 16,OS=latest
+      DERIVED_DATA: .build/DerivedData
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks
+
+      - name: Validate shell scripts
+        run: bash -n scripts/*.sh
+
+      - name: Install SwiftLint
+        run: brew install swiftlint
+
+      - name: Lint Swift
+        run: swiftlint lint --strict --config .swiftlint.yml
+
+      - name: List project
+        run: xcodebuild -list -project "$PROJECT_PATH"
+
+      - name: Build and test
+        run: |
+          xcodebuild clean test \
+            -project "$PROJECT_PATH" \
+            -scheme "$SCHEME" \
+            -configuration Debug \
+            -destination "$DESTINATION" \
+            -derivedDataPath "$DERIVED_DATA" \
+            CODE_SIGNING_ALLOWED=NO

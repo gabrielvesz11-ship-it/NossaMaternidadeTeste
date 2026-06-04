@@ -1,0 +1,15 @@
+---
+description: Política mobile physical-device-only para Cursor Agent
+alwaysApply: true
+---
+
+# Mobile physical-device-only
+
+- Nunca executar iOS Simulator ou Android Emulator.
+- Comandos mobile locais exigem device físico real antes de rodar.
+- iOS: validar com `idevice_id -l`; sem saída, bloquear.
+- Android: validar com `adb devices`; contar apenas device autorizado cujo ID não comece com `emulator-`.
+- `expo run:ios` e `expo run:android` precisam de `--device`, mas `--device` sozinho não prova device físico.
+- Bloqueados: `xcrun simctl`, `open -a Simulator`, `ios-sim`, `exios-sim`, `emulator -avd`, `emulator @...`, `avdmanager`, `react-native run-android`, `expo start --android`, `expo prebuild --platform android`, Gradle Android local e `adb install/shell/reverse/forward/logcat`.
+- Este projeto é iOS-only até mudança explícita de escopo; não executar build, run, QA, prebuild ou fix Android local aqui.
+- EAS Build, installs, git, lint, typecheck e testes não-mobile seguem permitidos pelas regras normais.

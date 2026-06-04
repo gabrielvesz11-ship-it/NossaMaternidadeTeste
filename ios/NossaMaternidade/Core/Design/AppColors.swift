@@ -1,38 +1,68 @@
 import SwiftUI
 
+enum AppTheme {
+    enum ColorToken {
+        static let backgroundPrimary = Color(hex: "F7F1E8")
+        static let backgroundElevated = Color(hex: "FFFFFF")
+        static let accentPrimary = Color(hex: "C76B4A")
+        static let accentSecondary = Color(hex: "A8B89A")
+        static let textPrimary = Color(hex: "3D2E26")
+        static let textSecondary = Color(hex: "3D2E26").opacity(0.60)
+        static let borderSubtle = Color(hex: "3D2E26").opacity(0.12)
+        static let danger = Color(hex: "B84B42")
+        static let warning = Color(hex: "B7803D")
+        static let focus = Color(hex: "6A7E62")
+    }
+
+    enum FontToken {
+        static let display = Font.system(.largeTitle, design: .serif, weight: .semibold)
+        static let title = Font.system(.title2, design: .serif, weight: .semibold)
+        static let section = Font.system(.title3, design: .serif, weight: .semibold)
+        static let body = Font.system(.body, design: .default, weight: .regular)
+        static let bodyStrong = Font.system(.body, design: .default, weight: .semibold)
+        static let callout = Font.system(.callout, design: .default, weight: .regular)
+        static let caption = Font.system(.caption, design: .default, weight: .medium)
+    }
+
+    enum Space {
+        static let x1: CGFloat = 4
+        static let x2: CGFloat = 8
+        static let x3: CGFloat = 12
+        static let x4: CGFloat = 16
+        static let x6: CGFloat = 24
+        static let x8: CGFloat = 32
+        static let x12: CGFloat = 48
+    }
+
+    enum Radius {
+        static let card: CGFloat = 12
+        static let sheet: CGFloat = 20
+        static let button: CGFloat = 28
+        static let pill: CGFloat = 999
+    }
+
+    enum Shadow {
+        static let cardColor = Color(hex: "3D2E26").opacity(0.06)
+        static let cardRadius: CGFloat = 18
+        static let cardY: CGFloat = 8
+    }
+}
+
 enum AppColors {
-    static let primary = Color(hex: "C2705A")
-    static let primaryLight = Color(hex: "D9A08B")
-    static let primaryDark = Color(hex: "A05A48")
-    
-    static let background = Color(hex: "FDF8F5")
-    static let backgroundSecondary = Color(hex: "F5EDE8")
-    static let backgroundElevated = Color(hex: "FFFFFF")
-    
-    static let accent = Color(hex: "8FA68E")
-    static let accentLight = Color(hex: "B8C9B7")
-    
-    static let textPrimary = Color(hex: "3D3532")
-    static let textSecondary = Color(hex: "7A6E6A")
-    static let textTertiary = Color(hex: "A89E9A")
-    
-    static let nightBackground = Color(hex: "1C1917")
-    static let nightSurface = Color(hex: "2A2624")
-    static let nightText = Color(hex: "E8E0DB")
-    
-    static let danger = Color(hex: "C75B5B")
-    static let success = Color(hex: "6B9E75")
-    static let warning = Color(hex: "D4A656")
-    
-    static let calmGradient = LinearGradient(
-        colors: [
-            Color(hex: "2A2624"),
-            Color(hex: "1C1917"),
-            Color(hex: "3D3532")
-        ],
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-    )
+    static let primary = AppTheme.ColorToken.accentPrimary
+    static let primaryLight = AppTheme.ColorToken.accentPrimary.opacity(0.18)
+    static let primaryDark = Color(hex: "9F4E35")
+    static let background = AppTheme.ColorToken.backgroundPrimary
+    static let backgroundSecondary = Color(hex: "EFE5D8")
+    static let backgroundElevated = AppTheme.ColorToken.backgroundElevated
+    static let accent = AppTheme.ColorToken.accentSecondary
+    static let accentLight = AppTheme.ColorToken.accentSecondary.opacity(0.22)
+    static let textPrimary = AppTheme.ColorToken.textPrimary
+    static let textSecondary = AppTheme.ColorToken.textSecondary
+    static let textTertiary = AppTheme.ColorToken.textPrimary.opacity(0.42)
+    static let danger = AppTheme.ColorToken.danger
+    static let success = AppTheme.ColorToken.accentSecondary
+    static let warning = AppTheme.ColorToken.warning
 }
 
 extension Color {
@@ -40,23 +70,25 @@ extension Color {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
         Scanner(string: hex).scanHexInt64(&int)
-        let a, r, g, b: UInt64
+        let alpha, red, green, blue: UInt64
+
         switch hex.count {
         case 3:
-            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
+            (alpha, red, green, blue) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
         case 6:
-            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
+            (alpha, red, green, blue) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
         case 8:
-            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
+            (alpha, red, green, blue) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
         default:
-            (a, r, g, b) = (255, 0, 0, 0)
+            (alpha, red, green, blue) = (255, 0, 0, 0)
         }
+
         self.init(
             .sRGB,
-            red: Double(r) / 255,
-            green: Double(g) / 255,
-            blue: Double(b) / 255,
-            opacity: Double(a) / 255
+            red: Double(red) / 255,
+            green: Double(green) / 255,
+            blue: Double(blue) / 255,
+            opacity: Double(alpha) / 255
         )
     }
 }

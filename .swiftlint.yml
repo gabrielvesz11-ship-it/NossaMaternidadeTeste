@@ -1,0 +1,47 @@
+included:
+  - ios/NossaMaternidade
+  - ios/NossaMaternidadeTests
+  - ios/NossaMaternidadeUITests
+
+excluded:
+  - .build
+  - DerivedData
+
+opt_in_rules:
+  - empty_count
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+  - private_action
+  - private_outlet
+  - redundant_nil_coalescing
+
+disabled_rules:
+  - trailing_comma
+
+line_length:
+  warning: 140
+  error: 180
+
+function_body_length:
+  warning: 40
+  error: 80
+
+type_body_length:
+  warning: 300
+  error: 500
+
+file_length:
+  warning: 450
+  error: 600
+
+force_cast: error
+force_try: error
+force_unwrapping: error
+
+identifier_name:
+  allowed_symbols:
+    - _
+  min_length:
+    warning: 2
+  excluded:
+    - id

@@ -1,4 +1,13 @@
 node_modules
 .env
+.env.*
 .expo
 .rork
+.build
+DerivedData
+ios/Config/Secrets.local.xcconfig
+*.xcuserstate
+
+.DS_Store
+.codegraph/
+.xcodebuildmcp/

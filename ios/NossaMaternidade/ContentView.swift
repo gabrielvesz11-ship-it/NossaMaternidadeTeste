@@ -1,69 +1,55 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
+    @Environment(AppServices.self) private var services
     @Query private var profiles: [UserProfile]
-    @State private var isReady = false
-    
-    var hasCompletedOnboarding: Bool {
-        profiles.first?.hasCompletedOnboarding ?? false
+
+    private var profile: UserProfile? {
+        profiles.first
     }
-    
+
+    private var hasCompletedOnboarding: Bool {
+        profile?.hasCompletedOnboarding == true
+    }
+
     var body: some View {
         ZStack {
-            if !isReady {
-                SplashView()
-            } else if hasCompletedOnboarding {
-                MainTabView()
+            AppTheme.ColorToken.backgroundPrimary.ignoresSafeArea()
+
+            if hasCompletedOnboarding {
+                MainTabView(profile: profile)
             } else {
                 OnboardingView()
             }
         }
         .task {
-            try? await Task.sleep(for: .seconds(1.2))
-            withAnimation(.easeInOut(duration: 0.4)) {
-                isReady = true
-            }
+            prepareApp()
+        }
+        .onChange(of: profile?.anonymousUserID) { _, userID in
+            guard let userID else { return }
+            services.subscriptions.configure(appUserID: userID)
+        }
+    }
+
+    private func prepareApp() {
+        if let userID = profile?.anonymousUserID {
+            services.subscriptions.configure(appUserID: userID)
         }
     }
 }
 
-struct SplashView: View {
-    @State private var scale = 0.8
-    @State private var opacity = 0.0
-    
-    var body: some View {
-        ZStack {
-            AppColors.background.ignoresSafeArea()
-            
-            VStack(spacing: 24) {
-                ZStack {
-                    Circle()
-                        .fill(AppColors.primaryLight.opacity(0.3))
-                        .frame(width: 120, height: 120)
-                    
-                    Image(systemName: "heart.fill")
-                        .font(.system(size: 52))
-                        .foregroundStyle(AppColors.primary)
-                }
-                
-                Text("Nossa Maternidade")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundStyle(AppColors.textPrimary)
-                
-                Text("Estamos juntas")
-                    .font(.system(size: 17, weight: .medium))
-                    .foregroundStyle(AppColors.textSecondary)
-            }
-            .scaleEffect(scale)
-            .opacity(opacity)
-        }
-        .onAppear {
-            withAnimation(.easeOut(duration: 0.6)) {
-                scale = 1.0
-                opacity = 1.0
-            }
-        }
+#Preview("Onboarding") {
+    if let container = try? ModelContainer(
+        for: UserProfile.self, ChatMessage.self, DailyUsage.self,
+        WeeklyJournalEntry.self, SubscriptionRecord.self,
+        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+    ) {
+        ContentView()
+            .environment(AppServices())
+            .modelContainer(container)
+            .environment(\.locale, Locale(identifier: "pt_BR"))
+    } else {
+        Text("Preview indisponível")
     }
 }
