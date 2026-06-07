@@ -186,17 +186,17 @@ private final class MockURLProtocol: URLProtocol {
         return URLSession(configuration: configuration)
     }
 
-    override class func canInit(with request: URLRequest) -> Bool {
+    override static func canInit(with request: URLRequest) -> Bool {
         true
     }
 
-    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+    override static func canonicalRequest(for request: URLRequest) -> URLRequest {
         request
     }
 
     override func startLoading() {
         Self.lastRequest = request
-        Self.lastBodyString = request.httpBody.map { String(decoding: $0, as: UTF8.self) }
+        Self.lastBodyString = request.httpBody.flatMap { String(bytes: $0, encoding: .utf8) }
 
         guard let url = request.url,
               let response = HTTPURLResponse(
